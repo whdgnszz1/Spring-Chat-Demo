@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket STOMP Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = new SockJS('/ws');
+            var stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('연결됨: ' + frame);
+
+                // 첫 번째 채널 구독
+                stompClient.subscribe('/topic/messages', function (message) {
+                    console.log('첫 번째 채널에서 받은 메시지: ' + message.body);
+                });
+
+                // 두 번째 채널 구독
+                stompClient.subscribe('/topic/another', function (message) {
+                    console.log('두 번째 채널에서 받은 메시지: ' + message.body);
+                });
+
+                // 메시지 전송 예제
+                stompClient.send("/app/message", {}, "첫번째 채널 메시지");
+                stompClient.send("/app/another", {}, "두번째 채널 메시지");
+            });
+
+            window.onbeforeunload = function() {
+                if (stompClient !== null) {
+                    stompClient.disconnect();
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+<h1>WebSocket STOMP 예제</h1>
+</body>
+</html>
